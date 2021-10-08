@@ -1,3 +1,4 @@
+compatibility_date = "2021-10-07"
 name = "worker"
 # type = "javascript" is required to use the `[build]` section
 type = "javascript"
@@ -14,8 +15,8 @@ format = "modules"
 main = "./index.mjs"
 
 [durable_objects]
-bindings = [{name = "COUNTER", class_name = "Counter"}]
+bindings = [{name = "TORRENT", class_name = "Torrent"}]
 
 [[migrations]]
-tag = "v1" # Should be unique for each entry
-new_classes = ["Counter"]
+tag = "v0.1" # Should be unique for each entry
+new_classes = ["Torrent"]

@@ -4,6 +4,7 @@ import { terser } from 'rollup-plugin-terser'
 // for more details.
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
+import inject from '@rollup/plugin-inject';
 
 export default {
   input: 'src/index.mjs',
@@ -13,5 +14,12 @@ export default {
     file: 'dist/index.mjs',
     sourcemap: true,
   },
-  plugins: [commonjs(), nodeResolve({ browser: true }), terser()],
+  plugins: [
+    commonjs(),
+    nodeResolve({ browser: true, preferBuiltins: false }),
+    inject({
+      Buffer: ['buffer', 'Buffer'],
+    }),
+    terser()
+  ]
 }

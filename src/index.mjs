@@ -1,25 +1,35 @@
-import isOdd from 'is-odd'
+export { Torrent } from './torrent.mjs'
 
-// In order for the workers runtime to find the class that implements
-// our Durable Object namespace, we must export it from the root module.
-export { Counter } from './counter.mjs'
+async function handleAnnounce(request, env) {
+  const requestURL = new URL(request.url);
+  const params = new URLSearchParams(requestURL.searchParams);
+
+  let info_hash = params.get("info_hash");
+  if(!info_hash || info_hash.length !== 20) {
+    return new Response("Invalid info_hash", {
+      status: 400,
+      headers: {
+        'Content-Type': 'text/plain'
+      }
+    });
+  }
+
+  let id = env.TORRENT.idFromName(info_hash);
+  let torrent = env.TORRENT.get(id);
+  return await torrent.fetch(request);
+}
 
 export default {
   async fetch(request, env) {
-    try {
-      return await handleRequest(request, env)
-    } catch (e) {
-      return new Response(e.message)
+    let url = new URL(request.url);
+    if(url.pathname === '/announce') {
+      return handleAnnounce(request, env);
     }
-  },
-}
-
-async function handleRequest(request, env) {
-  let id = env.COUNTER.idFromName('A')
-  let obj = env.COUNTER.get(id)
-  let resp = await obj.fetch(request.url)
-  let count = parseInt(await resp.text())
-  let wasOdd = isOdd(count) ? 'is odd' : 'is even'
-
-  return new Response(`${count} ${wasOdd}`)
+    return new Response("Not found", {
+      status: 404,
+      headers: {
+        'Content-Type': 'text/plain'
+      }
+    });
+  }
 }
